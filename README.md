@@ -6,6 +6,13 @@
 
 **Circlify** is a lightweight and powerful Flutter package for creating customizable circular charts with smooth animations. Perfect for visualizing data in dashboards or adding dynamic radial elements to your app.
 
+## 📊 Demo
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/custom_value_demo.gif" alt="Circlify Demo 1" width="300">
+  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/animation_demo.gif" alt="Circlify Demo 2" width="300">
+</p>
+
 ## 🌟 Features
 
 - Highly customizable circular charts
@@ -124,12 +131,6 @@ class CustomChartApp extends StatelessWidget {
 | `color`   | `Color` | Color of the item                             | Required        |
 | `value`   | `double`| Value of the item (must be > 0)               | Required        |
 
-## 📊 Demo
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/custom_value_demo.gif" alt="Circlify Demo 1" width="300">
-  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/animation_demo.gif" alt="Circlify Demo 2" width="300">
-</p>
 
 ## 💬 Feedback and Contributions
 
