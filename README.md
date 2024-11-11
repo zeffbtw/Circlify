@@ -138,7 +138,7 @@ If you encounter any issues or have suggestions, feel free to open an [issue](ht
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/zeffbtw/circlify/blob/main/LICENSE) file for details.
+This project is licensed under the BSD 3-Clause License - see the [LICENSE](https://github.com/zeffbtw/circlify/blob/main/LICENSE) file for details.
 
 ---
 
