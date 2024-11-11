@@ -9,8 +9,8 @@
 ## 📊 Demo
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/custom_value_demo.gif" alt="Circlify Demo 1" width="300">
-  <img src="https://raw.githubusercontent.com/zeffbtw/circlify/refs/heads/main/raw/animation_demo.gif" alt="Circlify Demo 2" width="300">
+  <img src="https://raw.githubusercontent.com/zeffbtw/Circlify/refs/heads/main/raw/custom_value_demo.gif" alt="Circlify Demo 1" width="300">
+  <img src="https://raw.githubusercontent.com/zeffbtw/Circlify/refs/heads/main/raw/animation_demo.gif" alt="Circlify Demo 2" width="300">
 </p>
 
 ## 🌟 Features
