@@ -47,7 +47,9 @@ class _AnimationDemoState extends State<AnimationDemo> {
               child: const Text('Remove item'),
               onPressed: () {
                 setState(() {
-                  if (items.isNotEmpty) items.removeAt((items.length / 2).round());
+                  if (items.isNotEmpty) {
+                    items.removeAt((items.length / 2).round());
+                  }
                 });
               },
             ),

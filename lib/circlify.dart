@@ -2,7 +2,6 @@ library circlify;
 
 import 'dart:math';
 import 'package:circlify/circlify_item.dart';
-import 'package:circlify/math_utils.dart';
 import 'package:flutter/material.dart';
 
 class Circlify extends StatefulWidget {
@@ -167,7 +166,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     });
   }
 
-  void _updateValueAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int oldItemIndex, int newItemIndex) {
+  void _updateValueAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems,
+      int oldItemIndex, int newItemIndex) {
     final itemId = newItems[newItemIndex].id;
 
     final controller = AnimationController(
@@ -228,7 +228,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final radius = size.width / 2;
 
-        double maxSegmentSpacing = _calculateMaxSegmentSpacing(widget.items, radius - widget.segmentWidth / 2);
+        double maxSegmentSpacing =
+            _calculateMaxSegmentSpacing(widget.items, radius - widget.segmentWidth / 2);
         assert(
           widget.segmentSpacing >= 0 && widget.segmentSpacing <= maxSegmentSpacing,
           'Segment spacing is too large for the number of segments and the size of the chart or the number of segments is too large',
@@ -284,7 +285,8 @@ class _CircleChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double segmentPadding = MathUtils.scalarToAngle(size.width / 2 - segmentWidth / 2, segmentSpacing);
+    double segmentPadding =
+        _MathUtils.scalarToAngle(size.width / 2 - segmentWidth / 2, segmentSpacing);
     List<double> adjustedPercentages = _calculateAdjustedPercentages(segmentPadding);
     double startAngle = 0;
 
@@ -339,7 +341,8 @@ class _CircleChartPainter extends CustomPainter {
     for (int i = 0; i < adjustedPercentages.length; i++) {
       if (adjustedPercentages[i] < minPercentage) {
         final itemId = items[i].id;
-        if (animations[itemId]?.value == null || animationTypes[itemId] == _AnimationType.updateValue) {
+        if (animations[itemId]?.value == null ||
+            animationTypes[itemId] == _AnimationType.updateValue) {
           adjustedPercentages[i] = minPercentage;
         } else {
           adjustedPercentages[i] = adjustedPercentages[i];
@@ -421,13 +424,13 @@ class _CircleChartPainter extends CustomPainter {
     final path = Path();
     final borderRadius = _normalizeBorderRadius(
       this.borderRadius,
-      MathUtils.angleToScalar(size.width / 2, segmentSizeAngle),
-      MathUtils.angleToScalar(size.width / 2 - segmentWidth, segmentSizeAngle),
+      _MathUtils.angleToScalar(size.width / 2, segmentSizeAngle),
+      _MathUtils.angleToScalar(size.width / 2 - segmentWidth, segmentSizeAngle),
       segmentWidth,
     );
 
     // Start of segment
-    final start = MathUtils.calcEndOfArc(
+    final start = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(borderRadius.topLeft.y, size.height / 2),
       angle: segmentStartAngle,
@@ -435,16 +438,16 @@ class _CircleChartPainter extends CustomPainter {
 
     path.moveTo(start.dx, start.dy);
 
-    final snapOfAngle4 = MathUtils.calcEndOfArc(
+    final snapOfAngle4 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(0, size.height / 2),
       angle: segmentStartAngle,
     );
 
-    final startOfAngle4 = MathUtils.calcEndOfArc(
+    final startOfAngle4 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(0, size.height / 2),
-      angle: segmentStartAngle + MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x),
+      angle: segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x),
     );
 
     // Draw angle 4
@@ -463,20 +466,26 @@ class _CircleChartPainter extends CustomPainter {
     // Draw arc 1
     path.arcTo(
       arcRect,
-      pi + (segmentStartAngle + MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x)) * (pi / 180),
-      pi / (180 / (segmentSizeAngle - MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x + borderRadius.topRight.x))),
+      pi +
+          (segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x)) *
+              (pi / 180),
+      pi /
+          (180 /
+              (segmentSizeAngle -
+                  _MathUtils.scalarToAngle(
+                      size.width / 2, borderRadius.topLeft.x + borderRadius.topRight.x))),
       false,
     );
 
     // End of arc 1, snap of angle 1
-    final snapOfAngle1 = MathUtils.calcEndOfArc(
+    final snapOfAngle1 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(0, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
 
     // End of help arc 1, end of angle 1
-    final endOfAngle1 = MathUtils.calcEndOfArc(
+    final endOfAngle1 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(borderRadius.topRight.y, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
@@ -491,20 +500,22 @@ class _CircleChartPainter extends CustomPainter {
     );
 
     // End of help arc 2, start of angle 2
-    final startOfAngle2 = MathUtils.calcEndOfArc(
+    final startOfAngle2 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth - borderRadius.bottomRight.y, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
 
     // End of angle 2
-    final endOfAngle2 = MathUtils.calcEndOfArc(
+    final endOfAngle2 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth, size.height / 2),
-      angle: segmentSizeAngle - MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x) + segmentStartAngle,
+      angle: segmentSizeAngle -
+          _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x) +
+          segmentStartAngle,
     );
 
-    final point2Angle2 = MathUtils.calcEndOfArc(
+    final point2Angle2 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
@@ -513,10 +524,14 @@ class _CircleChartPainter extends CustomPainter {
     // End of arc 2, snap of angle 2
     late final Offset snapOfAngle2;
     if (borderRadius.bottomRight.x > 0) {
-      snapOfAngle2 = MathUtils.findIntersectionWithTangent(
+      snapOfAngle2 = _MathUtils.findIntersectionWithTangent(
         center: Offset(size.width / 2, size.height / 2),
         radius: size.width / 2 - segmentWidth,
-        angleDegrees: 180 + (segmentStartAngle + segmentSizeAngle - MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x)),
+        angleDegrees: 180 +
+            (segmentStartAngle +
+                segmentSizeAngle -
+                _MathUtils.scalarToAngle(
+                    size.width / 2 - segmentWidth, borderRadius.bottomRight.x)),
         point1: startOfAngle2,
         point2: point2Angle2,
       );
@@ -542,19 +557,29 @@ class _CircleChartPainter extends CustomPainter {
     );
     path.arcTo(
       arcRect2,
-      pi + pi / (180 / (segmentStartAngle + segmentSizeAngle - MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x))),
-      -pi / (180 / (segmentSizeAngle - MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomLeft.x + borderRadius.bottomRight.x))),
+      pi +
+          pi /
+              (180 /
+                  (segmentStartAngle +
+                      segmentSizeAngle -
+                      _MathUtils.scalarToAngle(
+                          size.width / 2 - segmentWidth, borderRadius.bottomRight.x))),
+      -pi /
+          (180 /
+              (segmentSizeAngle -
+                  _MathUtils.scalarToAngle(size.width / 2 - segmentWidth,
+                      borderRadius.bottomLeft.x + borderRadius.bottomRight.x))),
       false,
     );
 
-    final point1Angle3 = MathUtils.calcEndOfArc(
+    final point1Angle3 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentStartAngle,
     );
 
     // End of help arc 2, end of angle 3
-    final endOfAngle3 = MathUtils.calcEndOfArc(
+    final endOfAngle3 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth - borderRadius.bottomLeft.y, size.height / 2),
       angle: segmentStartAngle,
@@ -565,10 +590,12 @@ class _CircleChartPainter extends CustomPainter {
     if (borderRadius.bottomLeft.x == 0) {
       snapOfAngle3 = endOfAngle3;
     } else {
-      snapOfAngle3 = MathUtils.findIntersectionWithTangent(
+      snapOfAngle3 = _MathUtils.findIntersectionWithTangent(
         center: Offset(size.width / 2, size.height / 2),
         radius: size.width / 2 - segmentWidth,
-        angleDegrees: 180 + (segmentStartAngle + MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomLeft.x)),
+        angleDegrees: 180 +
+            (segmentStartAngle +
+                _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomLeft.x)),
         point1: point1Angle3,
         point2: endOfAngle3,
       );
@@ -613,8 +640,12 @@ class _CircleChartPainter extends CustomPainter {
     double topLeftMaxVerticalRadius = halfSegmentHeight;
     double topLeftHorizontalRadius = borderRadius.topLeft.x;
     double topLeftVerticalRadius = borderRadius.topLeft.y;
-    double topLeftHorizontalRatio = topLeftHorizontalRadius > topLeftMaxHorizontalRadius ? topLeftMaxHorizontalRadius / topLeftHorizontalRadius : 1.0;
-    double topLeftVerticalRatio = topLeftVerticalRadius > topLeftMaxVerticalRadius ? topLeftMaxVerticalRadius / topLeftVerticalRadius : 1.0;
+    double topLeftHorizontalRatio = topLeftHorizontalRadius > topLeftMaxHorizontalRadius
+        ? topLeftMaxHorizontalRadius / topLeftHorizontalRadius
+        : 1.0;
+    double topLeftVerticalRatio = topLeftVerticalRadius > topLeftMaxVerticalRadius
+        ? topLeftMaxVerticalRadius / topLeftVerticalRadius
+        : 1.0;
     double topLeftRatio = min(topLeftHorizontalRatio, topLeftVerticalRatio);
 
     // Нормализация для нижнего левого угла
@@ -622,8 +653,12 @@ class _CircleChartPainter extends CustomPainter {
     double bottomLeftMaxVerticalRadius = halfSegmentHeight;
     double bottomLeftHorizontalRadius = borderRadius.bottomLeft.x;
     double bottomLeftVerticalRadius = borderRadius.bottomLeft.y;
-    double bottomLeftHorizontalRatio = bottomLeftHorizontalRadius > bottomLeftMaxHorizontalRadius ? bottomLeftMaxHorizontalRadius / bottomLeftHorizontalRadius : 1.0;
-    double bottomLeftVerticalRatio = bottomLeftVerticalRadius > bottomLeftMaxVerticalRadius ? bottomLeftMaxVerticalRadius / bottomLeftVerticalRadius : 1.0;
+    double bottomLeftHorizontalRatio = bottomLeftHorizontalRadius > bottomLeftMaxHorizontalRadius
+        ? bottomLeftMaxHorizontalRadius / bottomLeftHorizontalRadius
+        : 1.0;
+    double bottomLeftVerticalRatio = bottomLeftVerticalRadius > bottomLeftMaxVerticalRadius
+        ? bottomLeftMaxVerticalRadius / bottomLeftVerticalRadius
+        : 1.0;
     double bottomLeftRatio = min(bottomLeftHorizontalRatio, bottomLeftVerticalRatio);
 
     // Нормализация для верхнего правого угла
@@ -631,8 +666,12 @@ class _CircleChartPainter extends CustomPainter {
     double topRightMaxVerticalRadius = halfSegmentHeight;
     double topRightHorizontalRadius = borderRadius.topRight.x;
     double topRightVerticalRadius = borderRadius.topRight.y;
-    double topRightHorizontalRatio = topRightHorizontalRadius > topRightMaxHorizontalRadius ? topRightMaxHorizontalRadius / topRightHorizontalRadius : 1.0;
-    double topRightVerticalRatio = topRightVerticalRadius > topRightMaxVerticalRadius ? topRightMaxVerticalRadius / topRightVerticalRadius : 1.0;
+    double topRightHorizontalRatio = topRightHorizontalRadius > topRightMaxHorizontalRadius
+        ? topRightMaxHorizontalRadius / topRightHorizontalRadius
+        : 1.0;
+    double topRightVerticalRatio = topRightVerticalRadius > topRightMaxVerticalRadius
+        ? topRightMaxVerticalRadius / topRightVerticalRadius
+        : 1.0;
     double topRightRatio = min(topRightHorizontalRatio, topRightVerticalRatio);
 
     // Нормализация для нижнего правого угла
@@ -640,8 +679,12 @@ class _CircleChartPainter extends CustomPainter {
     double bottomRightMaxVerticalRadius = halfSegmentHeight;
     double bottomRightHorizontalRadius = borderRadius.bottomRight.x;
     double bottomRightVerticalRadius = borderRadius.bottomRight.y;
-    double bottomRightHorizontalRatio = bottomRightHorizontalRadius > bottomRightMaxHorizontalRadius ? bottomRightMaxHorizontalRadius / bottomRightHorizontalRadius : 1.0;
-    double bottomRightVerticalRatio = bottomRightVerticalRadius > bottomRightMaxVerticalRadius ? bottomRightMaxVerticalRadius / bottomRightVerticalRadius : 1.0;
+    double bottomRightHorizontalRatio = bottomRightHorizontalRadius > bottomRightMaxHorizontalRadius
+        ? bottomRightMaxHorizontalRadius / bottomRightHorizontalRadius
+        : 1.0;
+    double bottomRightVerticalRatio = bottomRightVerticalRadius > bottomRightMaxVerticalRadius
+        ? bottomRightMaxVerticalRadius / bottomRightVerticalRadius
+        : 1.0;
     double bottomRightRatio = min(bottomRightHorizontalRatio, bottomRightVerticalRatio);
 
     return BorderRadius.only(
@@ -674,4 +717,99 @@ enum _AnimationType {
   remove,
   add,
   updateValue,
+}
+
+class _MathUtils {
+  _MathUtils._();
+
+  static double scalarToAngle(double radius, double scalar) {
+    if (radius == 0) {
+      throw ArgumentError('Radius cannot be zero');
+    }
+
+    double angleRadians = scalar / radius;
+    double angleDegrees = angleRadians * (180 / pi);
+
+    return angleDegrees;
+  }
+
+  static double angleToScalar(double radius, double angle) {
+    return (pi * radius * angle) / 180;
+  }
+
+  static Offset calcEndOfArc({
+    required Offset center,
+    required Offset start,
+    required double angle,
+  }) {
+    final radian = angle * (pi / 180);
+
+    double x1 = start.dx - center.dx;
+    double y1 = start.dy - center.dy;
+
+    double x2 = x1 * cos(radian) - y1 * sin(radian);
+    double y2 = x1 * sin(radian) + y1 * cos(radian);
+
+    return Offset(x2 + center.dx, y2 + center.dy);
+  }
+
+  static Offset findIntersectionWithTangent({
+    required Offset center,
+    required double radius,
+    required double angleDegrees,
+    required Offset point1,
+    required Offset point2,
+  }) {
+    double angleRadians = angleDegrees * pi / 180;
+
+    double x0 = center.dx + radius * cos(angleRadians);
+    double y0 = center.dy + radius * sin(angleRadians);
+
+    double dx = -radius * sin(angleRadians);
+    double dy = radius * cos(angleRadians);
+
+    double tangentSlope;
+    if (dx != 0) {
+      tangentSlope = dy / dx;
+    } else {
+      tangentSlope = double.infinity;
+    }
+
+    double b1 = y0 - tangentSlope * x0;
+
+    double deltaX = point2.dx - point1.dx;
+    double deltaY = point2.dy - point1.dy;
+
+    double lineSlope;
+    double b2;
+
+    if (deltaX != 0) {
+      lineSlope = deltaY / deltaX;
+      b2 = point1.dy - lineSlope * point1.dx;
+    } else {
+      lineSlope = double.infinity;
+      b2 = point1.dx;
+    }
+
+    double x, y;
+
+    if (tangentSlope == lineSlope) {
+      throw Exception('Lines parallel or equal');
+    } else if (tangentSlope.isInfinite) {
+      if (lineSlope.isInfinite) {
+        throw Exception('Lines parallel or equal');
+      } else {
+        x = x0;
+        y = lineSlope * x + b2;
+      }
+    } else if (lineSlope.isInfinite) {
+      x = b2;
+      y = tangentSlope * x + b1;
+    } else {
+      x = (b2 - b1) / (tangentSlope - lineSlope);
+      y = tangentSlope * x + b1;
+    }
+
+    return Offset(x, y);
+  }
 }

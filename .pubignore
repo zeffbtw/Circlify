@@ -1,0 +1,4 @@
+# .pubignore
+
+.vscode/
+lib/math_utils.dart
