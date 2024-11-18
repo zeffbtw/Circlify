@@ -5,6 +5,14 @@ version: 1.1.0
 repository: https://github.com/zeffbtw/Circlify
 homepage: https://github.com/zeffbtw/Circlify
 issue_tracker: https://github.com/zeffbtw/Circlify/issues
+topics:
+ - chart
+ - circle
+ - animation
+ - ui
+ - effects
+ - widgets
+ - widget
 
 environment:
   sdk: ^3.0.0
