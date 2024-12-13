@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0] - 2024-12-14
+
+### ✨ New Features
+- **Labels on Segments**: Added support for displaying text labels directly on chart segments. This allows for more informative and visually appealing charts.
+
+### 🐛 Fixes
+- **Readme and Examples**: Corrected errors in the README and usage examples. All examples are now accurate and free from misleading code snippets.
+
+---
+
+
 ## [1.1.0] - 2024-11-12
 
 ### 🚀 Enhancements
