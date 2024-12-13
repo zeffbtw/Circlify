@@ -73,7 +73,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
   }
 
-  void _listIsChanged(List<CirclifyItem> oldItems, List<CirclifyItem> newItems) {
+  void _listIsChanged(
+      List<CirclifyItem> oldItems, List<CirclifyItem> newItems) {
     bool isAnimated = false;
 
     // Remove item check
@@ -111,7 +112,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     }
   }
 
-  void _removeAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
+  void _removeAnimation(
+      List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
     final itemId = oldItems[index].id;
 
     final controller = AnimationController(
@@ -144,7 +146,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     });
   }
 
-  void _addAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
+  void _addAnimation(
+      List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
     final itemId = newItems[index].id;
     final controller = AnimationController(
       vsync: this,
@@ -172,8 +175,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     });
   }
 
-  void _updateValueAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems,
-      int oldItemIndex, int newItemIndex) {
+  void _updateValueAnimation(List<CirclifyItem> oldItems,
+      List<CirclifyItem> newItems, int oldItemIndex, int newItemIndex) {
     final itemId = newItems[newItemIndex].id;
 
     final controller = AnimationController(
@@ -202,7 +205,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     });
   }
 
-  static double _calculateMaxSegmentSpacing(List<CirclifyItem> items, double radius) {
+  static double _calculateMaxSegmentSpacing(
+      List<CirclifyItem> items, double radius) {
     double minPercentage = 0.025;
     int itemCount = items.length;
 
@@ -221,7 +225,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
 
     for (int i = 0; i < _removingItemsIndexes.length; i++) {
       if (_removingItems[_removingItemsIndexes[i]] != null) {
-        formattedItems.insert(_removingItemsIndexes[i], _removingItems[_removingItemsIndexes[i]]!);
+        formattedItems.insert(_removingItemsIndexes[i],
+            _removingItems[_removingItemsIndexes[i]]!);
       }
     }
     return formattedItems;
@@ -234,10 +239,11 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final radius = size.width / 2;
 
-        double maxSegmentSpacing =
-            _calculateMaxSegmentSpacing(widget.items, radius - widget.segmentWidth / 2);
+        double maxSegmentSpacing = _calculateMaxSegmentSpacing(
+            widget.items, radius - widget.segmentWidth / 2);
         assert(
-          widget.segmentSpacing >= 0 && widget.segmentSpacing <= maxSegmentSpacing,
+          widget.segmentSpacing >= 0 &&
+              widget.segmentSpacing <= maxSegmentSpacing,
           'Segment spacing is too large for the number of segments and the size of the chart or the number of segments is too large',
         );
 
@@ -293,9 +299,10 @@ class _CircleChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double segmentPadding =
-        _MathUtils.scalarToAngle(size.width / 2 - segmentWidth / 2, segmentSpacing);
-    List<double> adjustedPercentages = _calculateAdjustedPercentages(segmentPadding);
+    double segmentPadding = _MathUtils.scalarToAngle(
+        size.width / 2 - segmentWidth / 2, segmentSpacing);
+    List<double> adjustedPercentages =
+        _calculateAdjustedPercentages(segmentPadding);
     double startAngle = 0;
 
     if (items.isEmpty) {
@@ -392,7 +399,8 @@ class _CircleChartPainter extends CustomPainter {
 
     final double radius = (size.width / 2) - (segmentWidth / 2);
     canvas.drawArc(
-      Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: radius),
+      Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2), radius: radius),
       0,
       2 * pi,
       false,
@@ -455,7 +463,8 @@ class _CircleChartPainter extends CustomPainter {
     final startOfAngle4 = _MathUtils.calcEndOfArc(
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(0, size.height / 2),
-      angle: segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x),
+      angle: segmentStartAngle +
+          _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x),
     );
 
     // Draw angle 4
@@ -475,13 +484,15 @@ class _CircleChartPainter extends CustomPainter {
     path.arcTo(
       arcRect,
       pi +
-          (segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x)) *
+          (segmentStartAngle +
+                  _MathUtils.scalarToAngle(
+                      size.width / 2, borderRadius.topLeft.x)) *
               (pi / 180),
       pi /
           (180 /
               (segmentSizeAngle -
-                  _MathUtils.scalarToAngle(
-                      size.width / 2, borderRadius.topLeft.x + borderRadius.topRight.x))),
+                  _MathUtils.scalarToAngle(size.width / 2,
+                      borderRadius.topLeft.x + borderRadius.topRight.x))),
       false,
     );
 
@@ -519,7 +530,8 @@ class _CircleChartPainter extends CustomPainter {
       center: Offset(size.width / 2, size.height / 2),
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentSizeAngle -
-          _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x) +
+          _MathUtils.scalarToAngle(
+              size.width / 2 - segmentWidth, borderRadius.bottomRight.x) +
           segmentStartAngle,
     );
 
@@ -570,8 +582,8 @@ class _CircleChartPainter extends CustomPainter {
               (180 /
                   (segmentStartAngle +
                       segmentSizeAngle -
-                      _MathUtils.scalarToAngle(
-                          size.width / 2 - segmentWidth, borderRadius.bottomRight.x))),
+                      _MathUtils.scalarToAngle(size.width / 2 - segmentWidth,
+                          borderRadius.bottomRight.x))),
       -pi /
           (180 /
               (segmentSizeAngle -
@@ -603,7 +615,8 @@ class _CircleChartPainter extends CustomPainter {
         radius: size.width / 2 - segmentWidth,
         angleDegrees: 180 +
             (segmentStartAngle +
-                _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomLeft.x)),
+                _MathUtils.scalarToAngle(
+                    size.width / 2 - segmentWidth, borderRadius.bottomLeft.x)),
         point1: point1Angle3,
         point2: endOfAngle3,
       );
@@ -658,7 +671,8 @@ class _CircleChartPainter extends CustomPainter {
     );
     final textSize = textPainter.size;
 
-    final centeredOffset = offset - Offset(textSize.width / 2, textSize.height / 2);
+    final centeredOffset =
+        offset - Offset(textSize.width / 2, textSize.height / 2);
     textPainter.paint(canvas, centeredOffset);
   }
 
@@ -678,12 +692,14 @@ class _CircleChartPainter extends CustomPainter {
     double topLeftMaxVerticalRadius = halfSegmentHeight;
     double topLeftHorizontalRadius = borderRadius.topLeft.x;
     double topLeftVerticalRadius = borderRadius.topLeft.y;
-    double topLeftHorizontalRatio = topLeftHorizontalRadius > topLeftMaxHorizontalRadius
-        ? topLeftMaxHorizontalRadius / topLeftHorizontalRadius
-        : 1.0;
-    double topLeftVerticalRatio = topLeftVerticalRadius > topLeftMaxVerticalRadius
-        ? topLeftMaxVerticalRadius / topLeftVerticalRadius
-        : 1.0;
+    double topLeftHorizontalRatio =
+        topLeftHorizontalRadius > topLeftMaxHorizontalRadius
+            ? topLeftMaxHorizontalRadius / topLeftHorizontalRadius
+            : 1.0;
+    double topLeftVerticalRatio =
+        topLeftVerticalRadius > topLeftMaxVerticalRadius
+            ? topLeftMaxVerticalRadius / topLeftVerticalRadius
+            : 1.0;
     double topLeftRatio = min(topLeftHorizontalRatio, topLeftVerticalRatio);
 
     // Нормализация для нижнего левого угла
@@ -691,25 +707,30 @@ class _CircleChartPainter extends CustomPainter {
     double bottomLeftMaxVerticalRadius = halfSegmentHeight;
     double bottomLeftHorizontalRadius = borderRadius.bottomLeft.x;
     double bottomLeftVerticalRadius = borderRadius.bottomLeft.y;
-    double bottomLeftHorizontalRatio = bottomLeftHorizontalRadius > bottomLeftMaxHorizontalRadius
-        ? bottomLeftMaxHorizontalRadius / bottomLeftHorizontalRadius
-        : 1.0;
-    double bottomLeftVerticalRatio = bottomLeftVerticalRadius > bottomLeftMaxVerticalRadius
-        ? bottomLeftMaxVerticalRadius / bottomLeftVerticalRadius
-        : 1.0;
-    double bottomLeftRatio = min(bottomLeftHorizontalRatio, bottomLeftVerticalRatio);
+    double bottomLeftHorizontalRatio =
+        bottomLeftHorizontalRadius > bottomLeftMaxHorizontalRadius
+            ? bottomLeftMaxHorizontalRadius / bottomLeftHorizontalRadius
+            : 1.0;
+    double bottomLeftVerticalRatio =
+        bottomLeftVerticalRadius > bottomLeftMaxVerticalRadius
+            ? bottomLeftMaxVerticalRadius / bottomLeftVerticalRadius
+            : 1.0;
+    double bottomLeftRatio =
+        min(bottomLeftHorizontalRatio, bottomLeftVerticalRatio);
 
     // Нормализация для верхнего правого угла
     double topRightMaxHorizontalRadius = halfSegmentWidthTop;
     double topRightMaxVerticalRadius = halfSegmentHeight;
     double topRightHorizontalRadius = borderRadius.topRight.x;
     double topRightVerticalRadius = borderRadius.topRight.y;
-    double topRightHorizontalRatio = topRightHorizontalRadius > topRightMaxHorizontalRadius
-        ? topRightMaxHorizontalRadius / topRightHorizontalRadius
-        : 1.0;
-    double topRightVerticalRatio = topRightVerticalRadius > topRightMaxVerticalRadius
-        ? topRightMaxVerticalRadius / topRightVerticalRadius
-        : 1.0;
+    double topRightHorizontalRatio =
+        topRightHorizontalRadius > topRightMaxHorizontalRadius
+            ? topRightMaxHorizontalRadius / topRightHorizontalRadius
+            : 1.0;
+    double topRightVerticalRatio =
+        topRightVerticalRadius > topRightMaxVerticalRadius
+            ? topRightMaxVerticalRadius / topRightVerticalRadius
+            : 1.0;
     double topRightRatio = min(topRightHorizontalRatio, topRightVerticalRatio);
 
     // Нормализация для нижнего правого угла
@@ -717,13 +738,16 @@ class _CircleChartPainter extends CustomPainter {
     double bottomRightMaxVerticalRadius = halfSegmentHeight;
     double bottomRightHorizontalRadius = borderRadius.bottomRight.x;
     double bottomRightVerticalRadius = borderRadius.bottomRight.y;
-    double bottomRightHorizontalRatio = bottomRightHorizontalRadius > bottomRightMaxHorizontalRadius
-        ? bottomRightMaxHorizontalRadius / bottomRightHorizontalRadius
-        : 1.0;
-    double bottomRightVerticalRatio = bottomRightVerticalRadius > bottomRightMaxVerticalRadius
-        ? bottomRightMaxVerticalRadius / bottomRightVerticalRadius
-        : 1.0;
-    double bottomRightRatio = min(bottomRightHorizontalRatio, bottomRightVerticalRatio);
+    double bottomRightHorizontalRatio =
+        bottomRightHorizontalRadius > bottomRightMaxHorizontalRadius
+            ? bottomRightMaxHorizontalRadius / bottomRightHorizontalRadius
+            : 1.0;
+    double bottomRightVerticalRatio =
+        bottomRightVerticalRadius > bottomRightMaxVerticalRadius
+            ? bottomRightMaxVerticalRadius / bottomRightVerticalRadius
+            : 1.0;
+    double bottomRightRatio =
+        min(bottomRightHorizontalRatio, bottomRightVerticalRatio);
 
     return BorderRadius.only(
       topLeft: Radius.elliptical(
