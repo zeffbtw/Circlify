@@ -27,9 +27,7 @@ class _AnimationDemoState extends State<AnimationDemo> {
             SizedBox(
               width: 300,
               height: 300,
-              child: Circlify(
-                items: items,
-              ),
+              child: Circlify(items: items),
             ),
             const SizedBox(height: 40),
             TextButton(

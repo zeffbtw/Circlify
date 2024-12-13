@@ -27,7 +27,7 @@ Add `circlify` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  circlify: ^1.1.0
+  circlify: ^1.1.1
 ```
 
 ## 🚀 Usage
@@ -35,11 +35,14 @@ dependencies:
 Here’s a quick example to get started:
 
 ```dart
-import 'package:circlify/circlify.dart';
-import 'package:flutter/material.dart';
-
 class App extends StatelessWidget {
   const App({super.key});
+
+  final List<CirclifyItem> = [
+    CirclifyItem(color: Colors.red, value: 100),
+    CirclifyItem(color: Colors.green, value: 100),
+    CirclifyItem(color: Colors.blue, value: 100),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +52,7 @@ class App extends StatelessWidget {
           width: 200,
           height: 200,
           child: Circlify(
-            items: [
-              CirclifyItem(color: Colors.red, value: 100),
-              CirclifyItem(color: Colors.green, value: 100),
-              CirclifyItem(color: Colors.blue, value: 100),
-            ],
+            items: items,
           ),
         ),
       ),
@@ -61,6 +60,97 @@ class App extends StatelessWidget {
   }
 }
 ```
+
+## ⚠️ Important Note: Proper Initialization of `CirclifyItem`
+
+To ensure smooth performance, all `CirclifyItem` objects must be initialized only once **if `id` is not provided**. Avoid re-creating `CirclifyItem` instances on every rebuild. Below is an example of what **not to do**:
+
+### 🚫 Incorrect Usage
+```dart
+Circlify(
+  items: [
+    CirclifyItem(color: Colors.red, value: 100),
+    CirclifyItem(color: Colors.green, value: 100),
+    CirclifyItem(color: Colors.blue, value: 100),
+  ],
+)
+```
+
+The issue with the above example is that new `CirclifyItem` objects are being created on each rebuild, causing unnecessary re-rendering and performance issues.
+
+### ✅ Correct Usage
+Instead, ensure that `CirclifyItem` objects are created once and reused, as shown in the following examples:
+
+#### Example 1: Assign `id` to each item
+```dart
+Circlify(
+  items: [
+    CirclifyItem(id: '1', color: Colors.red, value: 100),
+    CirclifyItem(id: '2', color: Colors.green, value: 100),
+    CirclifyItem(id: '3', color: Colors.blue, value: 100),
+  ],
+)
+```
+
+#### Example 2: Define `CirclifyItem` list separately
+```dart
+List<CirclifyItem> items = [
+  CirclifyItem(color: Colors.red, value: 100),
+  CirclifyItem(color: Colors.green, value: 100),
+  CirclifyItem(color: Colors.blue, value: 100),
+];
+
+Circlify(
+  items: items,
+)
+```
+
+By following these patterns, you ensure that your charts remain performant and efficient.
+
+## 📏 Labels on Items
+
+Add custom labels to each item using the `label` property. This feature allows for enhanced visual representation of each section in the circular chart.
+
+### 🎨 Example with Labels
+<img src="https://raw.githubusercontent.com/zeffbtw/Circlify/refs/heads/main/raw/labels_demo.jpg" alt="Circlify Labels" width="300">
+
+```dart
+Circlify(
+  segmentWidth: 100,
+  labelStyle: const TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+  ),
+  items: [
+    CirclifyItem(
+      id: '1',
+      color: Colors.red,
+      value: 100,
+      label: 'Red',
+    ),
+    CirclifyItem(
+      id: '2',
+      color: Colors.green,
+      value: 100,
+      label: 'Green',
+    ),
+    CirclifyItem(
+      id: '3',
+      color: Colors.blue,
+      value: 100,
+      label: 'Blue',
+    ),
+  ],
+)
+```
+
+### ✨ Key Takeaways for Labels
+- Use the `label` property to add descriptive text to each item.
+- Customize the appearance of labels using the `labelStyle` property, which accepts a `TextStyle` object.
+- Ensure each `CirclifyItem` has a unique `id` to optimize re-renders and maintain a consistent visual layout.
+
+
 
 ## 🛠 Custom CirclifyItem
 
@@ -122,6 +212,8 @@ class CustomChartApp extends StatelessWidget {
 | `segmentDefaultColor`| `Color`        | Default color for empty chart segments                              | `Colors.grey`         |
 | `animationDuration`  | `Duration`     | Duration of the animation                                           | `Duration(milliseconds: 150)` |
 | `animationCurve`     | `Curve`        | Animation curve                                                     | `Curves.easeIn`    |
+| `labelStyle`     | `TextStyle`        | TextStyle of label on CirclifyItem                                                     | Optional    |
+
 
 ## 📝 CirclifyItem Parameters
 
@@ -130,6 +222,8 @@ class CustomChartApp extends StatelessWidget {
 | `id`      | `String`| Unique ID for the item (auto-generated if not provided) | Auto-generated  |
 | `color`   | `Color` | Color of the item                             | Required        |
 | `value`   | `double`| Value of the item (must be > 0)               | Required        |
+| `label`   | `String`| The label of the item, drawn on center of the segment| Optional        |
+
 
 
 ## 💬 Feedback and Contributions

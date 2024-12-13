@@ -27,17 +27,28 @@ class _CustomValuesDemoState extends State<CustomValuesDemo> {
             width: 250,
             height: 250,
             child: Circlify(
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
               items: [
                 CustomCircleChartItem(
+                  id: '0',
                   color: Colors.red,
                   value: value,
-                  id: '0',
                   name: 'Name',
                 ),
                 CirclifyItem(
                   id: '1',
                   color: Colors.green,
                   value: 100,
+                  label: 'Hello',
+                ),
+                CirclifyItem(
+                  id: '2',
+                  color: Colors.green,
+                  value: 100,
+                  label: 'Circlify',
                 ),
               ],
               segmentSpacing: spacing,

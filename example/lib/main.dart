@@ -21,13 +21,34 @@ class App extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 200,
-              height: 200,
+              width: 300,
+              height: 300,
               child: Circlify(
+                segmentWidth: 100,
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
                 items: [
-                  CirclifyItem(color: Colors.red, value: 100),
-                  CirclifyItem(color: Colors.green, value: 100),
-                  CirclifyItem(color: Colors.blue, value: 100),
+                  CirclifyItem(
+                    id: '1',
+                    color: Colors.red,
+                    value: 100,
+                    label: 'Red',
+                  ),
+                  CirclifyItem(
+                    id: '2',
+                    color: Colors.green,
+                    value: 100,
+                    label: 'Green',
+                  ),
+                  CirclifyItem(
+                    id: '3',
+                    color: Colors.blue,
+                    value: 100,
+                    label: 'Blue',
+                  ),
                 ],
               ),
             ),

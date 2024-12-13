@@ -14,6 +14,7 @@ class Circlify extends StatefulWidget {
     this.segmentDefaultColor = Colors.grey,
     this.animationDuration = const Duration(milliseconds: 150),
     this.animationCurve = Curves.easeIn,
+    this.labelStyle,
   });
 
   /// Chart items
@@ -37,6 +38,9 @@ class Circlify extends StatefulWidget {
   /// Animation curve
   final Curve animationCurve;
 
+  /// Label text style
+  final TextStyle? labelStyle;
+
   @override
   State<Circlify> createState() => _CirclifyState();
 }
@@ -54,13 +58,8 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     super.initState();
     _currentItems = List.from(widget.items);
     _oldItems = List.generate(widget.items.length, (index) {
-      final item = widget.items[index];
-
-      return CirclifyItem(
-        id: item.id,
-        color: item.color,
-        value: item.value,
-      );
+      final item = widget.items[index].copyWith();
+      return item;
     });
   }
 
@@ -68,22 +67,21 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
   void didUpdateWidget(covariant Circlify oldWidget) {
     _listIsChanged(_oldItems, widget.items);
     _oldItems = List.generate(widget.items.length, (index) {
-      final item = widget.items[index];
-      return CirclifyItem(
-        id: item.id,
-        color: item.color,
-        value: item.value,
-      );
+      final item = widget.items[index].copyWith();
+      return item;
     });
     super.didUpdateWidget(oldWidget);
   }
 
   void _listIsChanged(List<CirclifyItem> oldItems, List<CirclifyItem> newItems) {
+    bool isAnimated = false;
+
     // Remove item check
     for (int i = 0; i < oldItems.length; i++) {
       final fIndex = newItems.indexWhere((item) => item.id == oldItems[i].id);
       if (fIndex == -1) {
         _removeAnimation(oldItems, newItems, i);
+        isAnimated = true;
       }
     }
 
@@ -92,6 +90,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
       final fIndex = oldItems.indexWhere((item) => item.id == newItems[i].id);
       if (fIndex == -1) {
         _addAnimation(oldItems, newItems, i);
+        isAnimated = true;
       }
     }
 
@@ -101,7 +100,14 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
 
       if (fIndex != -1 && newItems[i].value != oldItems[fIndex].value) {
         _updateValueAnimation(oldItems, newItems, fIndex, i);
+        isAnimated = true;
       }
+    }
+
+    // Need for update _currentItems without animation
+    if (isAnimated == false) {
+      _currentItems = List.from(newItems);
+      setState(() {});
     }
   }
 
@@ -123,7 +129,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
       end: 0.01,
     ).chain(CurveTween(curve: widget.animationCurve)).animate(controller)
       ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
+        if (status.isCompleted) {
           _animations.remove(itemId);
           _animationTypes.remove(itemId);
           _removingItems.remove(index);
@@ -250,6 +256,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
             segmentDefaultColor: widget.segmentDefaultColor,
             animations: _animations,
             animationTypes: _animationTypes,
+            labelStyle: widget.labelStyle,
           ),
         );
       },
@@ -266,12 +273,12 @@ class _CircleChartPainter extends CustomPainter {
     required this.segmentDefaultColor,
     required this.animations,
     required this.animationTypes,
+    this.labelStyle,
   }) : items = List.generate(currentItems.length, (index) {
           final item = currentItems[index];
-          return CirclifyItem(
-            id: item.id,
+
+          return item.copyWith(
             value: item.value * (animations[item.id]?.value ?? 1).abs(),
-            color: item.color,
           );
         });
 
@@ -282,6 +289,7 @@ class _CircleChartPainter extends CustomPainter {
   final Color segmentDefaultColor;
   final Map<String, Animation<double>> animations;
   final Map<String, _AnimationType> animationTypes;
+  final TextStyle? labelStyle;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -314,7 +322,7 @@ class _CircleChartPainter extends CustomPainter {
       _drawSegment(
         canvas: canvas,
         size: size,
-        color: items[i].color,
+        item: items[i],
         segmentStartAngle: startAngle,
         segmentSizeAngle: segmentDegrees,
         segmentWidth: segmentWidth,
@@ -415,10 +423,10 @@ class _CircleChartPainter extends CustomPainter {
     required double segmentStartAngle,
     required double segmentSizeAngle,
     required double segmentWidth,
-    required Color color,
+    required CirclifyItem item,
   }) {
     final paint = Paint()
-      ..color = color
+      ..color = item.color
       ..style = PaintingStyle.fill
       ..strokeWidth = 2;
     final path = Path();
@@ -601,16 +609,6 @@ class _CircleChartPainter extends CustomPainter {
       );
     }
 
-    // final path2 = Path();
-    // path2.moveTo(point1Angle3.dx, point1Angle3.dy);
-    // // path2.lineTo(endOfAngle3.dx, endOfAngle3.dy);
-    // path2.lineTo(snapOfAngle3.dx, snapOfAngle3.dy);
-    // path2.lineTo(0, 0);
-    // canvas.drawPath(path2, paint);
-
-    // path.lineTo(snapOfAngle3.dx, snapOfAngle3.dy);
-    // path.lineTo(endOfAngle3.dx, endOfAngle3.dy);
-
     // Draw angle 3
     path.quadraticBezierTo(
       snapOfAngle3.dx,
@@ -622,6 +620,46 @@ class _CircleChartPainter extends CustomPainter {
     // Close the line with start
     path.close();
     canvas.drawPath(path, paint);
+
+    final textPoint = _MathUtils.calcEndOfArc(
+      center: Offset(size.width / 2, size.height / 2),
+      start: Offset(segmentWidth / 2, size.height / 2),
+      angle: segmentSizeAngle / 2 + segmentStartAngle,
+    );
+
+    if (item.label != null) {
+      _drawText(
+        canvas: canvas,
+        size: size,
+        text: item.label!,
+        offset: textPoint,
+      );
+    }
+  }
+
+  void _drawText({
+    required Canvas canvas,
+    required Size size,
+    required String text,
+    required Offset offset,
+  }) {
+    final textSpan = TextSpan(
+      text: text,
+      style: labelStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: size.width / 2,
+    );
+    final textSize = textPainter.size;
+
+    final centeredOffset = offset - Offset(textSize.width / 2, textSize.height / 2);
+    textPainter.paint(canvas, centeredOffset);
   }
 
   static BorderRadius _normalizeBorderRadius(
