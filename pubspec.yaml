@@ -6,13 +6,11 @@ repository: https://github.com/zeffbtw/сirclify
 homepage: https://github.com/zeffbtw/сirclify
 issue_tracker: https://github.com/zeffbtw/сirclify/issues
 topics:
- - chart
- - circle
- - animation
- - ui
- - effects
- - widgets
- - widget
+  - chart
+  - animation
+  - ui
+  - effects
+  - widget
 
 environment:
   sdk: ^3.0.0
