@@ -27,7 +27,7 @@ Add `circlify` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  circlify: ^1.1.1
+  circlify: ^<latest-version>
 ```
 
 ## 🚀 Usage
