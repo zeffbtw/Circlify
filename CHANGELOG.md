@@ -1,5 +1,13 @@
 # Changelog
 
+
+## [1.2.1] - 2024-12-14
+
+### 🐛 Fixes
+- **Readme and pubspec**: Corrected errors in the README and pubspec.yaml links.
+
+---
+
 ## [1.2.0] - 2024-12-14
 
 ### ✨ New Features
