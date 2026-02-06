@@ -392,6 +392,7 @@ class _CircleChartPainter extends CustomPainter {
         size: size,
         color: items[0].color,
         segmentWidth: segmentWidth,
+        label: items[0].label,
       );
       return;
     }
@@ -461,6 +462,7 @@ class _CircleChartPainter extends CustomPainter {
     required Size size,
     required double segmentWidth,
     required Color color,
+    String? label,
   }) {
     final paint = Paint()
       ..color = color
@@ -476,6 +478,14 @@ class _CircleChartPainter extends CustomPainter {
       false,
       paint,
     );
+    if (label != null) {
+      _drawText(
+        canvas: canvas,
+        size: size,
+        text: label,
+        offset: Offset(size.width / 2, segmentWidth / 2),
+      );
+    }
   }
 
   /// Draws a single segment of a circle chart.

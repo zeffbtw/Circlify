@@ -27,7 +27,7 @@ Add `circlify` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  circlify: ^1.1.1
+  circlify: ^<latest-version>
 ```
 
 ## 🚀 Usage
@@ -224,6 +224,9 @@ class CustomChartApp extends StatelessWidget {
 | `value`   | `double`| Value of the item (must be > 0)               | Required        |
 | `label`   | `String`| The label of the item, drawn on center of the segment| Optional        |
 
+## 📌 TODO
+
+- [ ] [Add support for tapping on pie sections (highlight on tap)](https://github.com/zeffbtw/Circlify/issues/2)
 
 
 ## 💬 Feedback and Contributions

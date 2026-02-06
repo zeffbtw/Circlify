@@ -1,5 +1,26 @@
 # Changelog
 
+
+## [1.2.3] - 2025-06-23
+
+### 🐛 Fixes
+- **Changelog**: Corrected errors in the Changelog.
+
+
+## [1.2.2] - 2024-06-23
+
+### 🐛 Fixes
+- **Label rendering**: Fixed issue where label for a single item was not visible.  
+  Related to [GitHub issue #1](https://github.com/zeffbtw/Circlify/issues/1).
+
+
+## [1.2.1] - 2024-12-14
+
+### 🐛 Fixes
+- **Readme and pubspec**: Corrected errors in the README and pubspec.yaml links.
+
+---
+
 ## [1.2.0] - 2024-12-14
 
 ### ✨ New Features
