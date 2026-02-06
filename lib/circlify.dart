@@ -111,12 +111,12 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
 
   @override
   void didUpdateWidget(covariant Circlify oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _listIsChanged(_oldItems, widget.items);
     _oldItems = List.generate(widget.items.length, (index) {
       final item = widget.items[index].copyWith();
       return item;
     });
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -177,7 +177,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     final controller = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-    )..drive(CurveTween(curve: widget.animationCurve));
+    );
 
     _controllers[itemId] = controller;
 
@@ -252,7 +252,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     final controller = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-    )..drive(CurveTween(curve: widget.animationCurve));
+    );
 
     _controllers[itemId] = controller;
 
@@ -519,16 +519,22 @@ class _CircleChartPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..strokeWidth = 2;
     final path = Path();
+
+    // Cache commonly used values
+    final center = Offset(size.width / 2, size.height / 2);
+    final outerRadius = size.width / 2;
+    final innerRadius = outerRadius - segmentWidth;
+
     final borderRadius = _normalizeBorderRadius(
       this.borderRadius,
-      _MathUtils.angleToScalar(size.width / 2, segmentSizeAngle),
-      _MathUtils.angleToScalar(size.width / 2 - segmentWidth, segmentSizeAngle),
+      _MathUtils.angleToScalar(outerRadius, segmentSizeAngle),
+      _MathUtils.angleToScalar(innerRadius, segmentSizeAngle),
       segmentWidth,
     );
 
     // Start of segment
     final start = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(borderRadius.topLeft.y, size.height / 2),
       angle: segmentStartAngle,
     );
@@ -536,15 +542,15 @@ class _CircleChartPainter extends CustomPainter {
     path.moveTo(start.dx, start.dy);
 
     final snapOfAngle4 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(0, size.height / 2),
       angle: segmentStartAngle,
     );
 
     final startOfAngle4 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(0, size.height / 2),
-      angle: segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x),
+      angle: segmentStartAngle + _MathUtils.scalarToAngle(outerRadius, borderRadius.topLeft.x),
     );
 
     // Draw angle 4
@@ -555,35 +561,32 @@ class _CircleChartPainter extends CustomPainter {
       startOfAngle4.dy,
     );
 
-    final arcRect = Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width / 2,
-    );
+    final arcRect = Rect.fromCircle(center: center, radius: outerRadius);
 
     // Draw arc 1
     path.arcTo(
       arcRect,
       pi +
-          (segmentStartAngle + _MathUtils.scalarToAngle(size.width / 2, borderRadius.topLeft.x)) *
+          (segmentStartAngle + _MathUtils.scalarToAngle(outerRadius, borderRadius.topLeft.x)) *
               (pi / 180),
       pi /
           (180 /
               (segmentSizeAngle -
                   _MathUtils.scalarToAngle(
-                      size.width / 2, borderRadius.topLeft.x + borderRadius.topRight.x))),
+                      outerRadius, borderRadius.topLeft.x + borderRadius.topRight.x))),
       false,
     );
 
     // End of arc 1, snap of angle 1
     final snapOfAngle1 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(0, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
 
     // End of help arc 1, end of angle 1
     final endOfAngle1 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(borderRadius.topRight.y, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
@@ -598,22 +601,22 @@ class _CircleChartPainter extends CustomPainter {
 
     // End of help arc 2, start of angle 2
     final startOfAngle2 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth - borderRadius.bottomRight.y, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
 
     // End of angle 2
     final endOfAngle2 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentSizeAngle -
-          _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomRight.x) +
+          _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomRight.x) +
           segmentStartAngle,
     );
 
     final point2Angle2 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentSizeAngle + segmentStartAngle,
     );
@@ -622,13 +625,12 @@ class _CircleChartPainter extends CustomPainter {
     late final Offset snapOfAngle2;
     if (borderRadius.bottomRight.x > 0) {
       snapOfAngle2 = _MathUtils.findIntersectionWithTangent(
-        center: Offset(size.width / 2, size.height / 2),
-        radius: size.width / 2 - segmentWidth,
+        center: center,
+        radius: innerRadius,
         angleDegrees: 180 +
             (segmentStartAngle +
                 segmentSizeAngle -
-                _MathUtils.scalarToAngle(
-                    size.width / 2 - segmentWidth, borderRadius.bottomRight.x)),
+                _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomRight.x)),
         point1: startOfAngle2,
         point2: point2Angle2,
       );
@@ -648,10 +650,7 @@ class _CircleChartPainter extends CustomPainter {
     );
 
     // Arc 2
-    final arcRect2 = Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width / 2 - segmentWidth,
-    );
+    final arcRect2 = Rect.fromCircle(center: center, radius: innerRadius);
     path.arcTo(
       arcRect2,
       pi +
@@ -659,25 +658,24 @@ class _CircleChartPainter extends CustomPainter {
               (180 /
                   (segmentStartAngle +
                       segmentSizeAngle -
-                      _MathUtils.scalarToAngle(
-                          size.width / 2 - segmentWidth, borderRadius.bottomRight.x))),
+                      _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomRight.x))),
       -pi /
           (180 /
               (segmentSizeAngle -
-                  _MathUtils.scalarToAngle(size.width / 2 - segmentWidth,
+                  _MathUtils.scalarToAngle(innerRadius,
                       borderRadius.bottomLeft.x + borderRadius.bottomRight.x))),
       false,
     );
 
     final point1Angle3 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth, size.height / 2),
       angle: segmentStartAngle,
     );
 
     // End of help arc 2, end of angle 3
     final endOfAngle3 = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth - borderRadius.bottomLeft.y, size.height / 2),
       angle: segmentStartAngle,
     );
@@ -688,11 +686,11 @@ class _CircleChartPainter extends CustomPainter {
       snapOfAngle3 = endOfAngle3;
     } else {
       snapOfAngle3 = _MathUtils.findIntersectionWithTangent(
-        center: Offset(size.width / 2, size.height / 2),
-        radius: size.width / 2 - segmentWidth,
+        center: center,
+        radius: innerRadius,
         angleDegrees: 180 +
             (segmentStartAngle +
-                _MathUtils.scalarToAngle(size.width / 2 - segmentWidth, borderRadius.bottomLeft.x)),
+                _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomLeft.x)),
         point1: point1Angle3,
         point2: endOfAngle3,
       );
@@ -711,7 +709,7 @@ class _CircleChartPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final textPoint = _MathUtils.calcEndOfArc(
-      center: Offset(size.width / 2, size.height / 2),
+      center: center,
       start: Offset(segmentWidth / 2, size.height / 2),
       angle: segmentSizeAngle / 2 + segmentStartAngle,
     );
@@ -759,7 +757,9 @@ class _CircleChartPainter extends CustomPainter {
   ) {
     // Half widths of the top and bottom parts of the segment
     double halfSegmentWidthTop = segmentWidthTop / 2.0;
-    double halfSegmentWidthBottom = segmentWidthBottom / 5;
+    // Bottom uses /5 instead of /2 to account for the narrower inner arc
+    // where corners need more constrained radii to avoid overlap
+    double halfSegmentWidthBottom = segmentWidthBottom / 5.0;
     double halfSegmentHeight = segmentHeight / 2.0;
 
     // Normalization for top-left corner
