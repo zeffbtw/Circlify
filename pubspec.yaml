@@ -1,6 +1,6 @@
 name: circlify
 description: "Circlify is a library for creating interactive pie charts and animated graphs with flexible customization and smooth animations."
-version: 1.2.3
+version: 2.0.0
 
 repository: https://github.com/zeffbtw/Circlify
 homepage: https://github.com/zeffbtw/Circlify
