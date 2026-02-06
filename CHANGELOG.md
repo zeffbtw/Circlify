@@ -1,13 +1,57 @@
 # Changelog
 
 
+## [2.0.0] - 2026-02-06
+
+### ⚠️ Breaking Changes
+
+- **Immutable CirclifyItem**: All fields (`color`, `value`, `label`) are now `final`. Direct mutation no longer works — use `copyWith()` instead.
+
+### 🚀 Migration from 1.x
+
+**Before (1.x):**
+```dart
+item.value = 200;
+item.color = Colors.blue;
+```
+
+**After (2.0):**
+```dart
+item = item.copyWith(value: 200);
+item = item.copyWith(color: Colors.blue);
+
+// To explicitly set label to null:
+item = item.copyWithLabel(null);
+```
+
+**Why:** Immutability ensures correct animation diffing and prevents subtle state bugs with Flutter's widget lifecycle.
+
+### ✨ New Features
+
+- **copyWithLabel()**: New method to explicitly set `label` to `null` (since `copyWith(label: null)` preserves the current value).
+
+### 🛠 Improvements
+
+- **Memory leak fix**: AnimationControllers are now properly disposed when items are removed.
+- **Performance**: Optimized `shouldRepaint` logic with proper field checks.
+- **Performance**: Cached center offset calculations in CustomPainter.
+- **Lifecycle**: Fixed `didUpdateWidget` to call `super` first (Flutter convention).
+- **Code cleanup**: Removed dead `.drive()` calls.
+
+### 🐛 Fixes
+
+- Fixed typos in example code (`segmentWidght` → `segmentWidth`, `Multiple` → `Multiply`).
+- Fixed CHANGELOG date inconsistency.
+
+---
+
 ## [1.2.3] - 2025-06-23
 
 ### 🐛 Fixes
 - **Changelog**: Corrected errors in the Changelog.
 
 
-## [1.2.2] - 2024-06-23
+## [1.2.2] - 2025-06-23
 
 ### 🐛 Fixes
 - **Label rendering**: Fixed issue where label for a single item was not visible.  

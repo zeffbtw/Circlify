@@ -1,5 +1,4 @@
-import 'package:circlify/Circlify.dart';
-import 'package:circlify/circlify_item.dart';
+import 'package:circlify/circlify.dart';
 import 'package:flutter/material.dart';
 
 class CustomValuesDemo extends StatefulWidget {
@@ -13,7 +12,7 @@ class _CustomValuesDemoState extends State<CustomValuesDemo> {
   double value = 100;
   double spacing = 5;
   double radius = 10;
-  double segmentWidght = 50;
+  double segmentWidth = 50;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class _CustomValuesDemoState extends State<CustomValuesDemo> {
                 ),
               ],
               segmentSpacing: spacing,
-              segmentWidth: segmentWidght,
+              segmentWidth: segmentWidth,
               borderRadius: BorderRadius.circular(radius),
             ),
           ),
@@ -81,12 +80,12 @@ class _CustomValuesDemoState extends State<CustomValuesDemo> {
             onChanged: (value) => setState(() => spacing = value),
           ),
           const SizedBox(height: 20),
-          Text('Segment width $segmentWidght'),
+          Text('Segment width $segmentWidth'),
           Slider(
             min: 1,
             max: 140,
-            value: segmentWidght,
-            onChanged: (value) => setState(() => segmentWidght = value),
+            value: segmentWidth,
+            onChanged: (value) => setState(() => segmentWidth = value),
           ),
           const SizedBox(height: 100),
         ],
