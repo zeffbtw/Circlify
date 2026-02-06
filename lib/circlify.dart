@@ -98,6 +98,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
   final Map<String, _AnimationType> _animationTypes = {};
   final Map<int, CirclifyItem> _removingItems = {};
   final List<int> _removingItemsIndexes = [];
+
   @override
   void initState() {
     super.initState();

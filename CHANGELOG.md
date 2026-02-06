@@ -7,7 +7,7 @@
 - **Changelog**: Corrected errors in the Changelog.
 
 
-## [1.2.2] - 2024-06-23
+## [1.2.2] - 2025-06-23
 
 ### 🐛 Fixes
 - **Label rendering**: Fixed issue where label for a single item was not visible.  

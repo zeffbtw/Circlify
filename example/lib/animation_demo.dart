@@ -51,7 +51,7 @@ class _AnimationDemoState extends State<AnimationDemo> {
               },
             ),
             TextButton(
-              child: const Text('Multiple 2 value'),
+              child: const Text('Multiply 2 value'),
               onPressed: () {
                 setState(() {
                   if (items.isNotEmpty) {
