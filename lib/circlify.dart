@@ -1,9 +1,53 @@
+/// A Flutter package for creating customizable circular charts with smooth animations.
+///
+/// The main widget is [Circlify], which renders a circular chart from a list
+/// of [CirclifyItem]s. The chart automatically animates when items are added,
+/// removed, or their values change.
+///
+/// Example:
+/// ```dart
+/// Circlify(
+///   items: [
+///     CirclifyItem(id: 'a', color: Colors.red, value: 30),
+///     CirclifyItem(id: 'b', color: Colors.blue, value: 70),
+///   ],
+///   segmentWidth: 40,
+///   segmentSpacing: 5,
+/// )
+/// ```
 library circlify;
 
 import 'dart:math';
-import 'package:circlify/circlify_item.dart';
 import 'package:flutter/material.dart';
 
+import 'circlify_item.dart';
+export 'circlify_item.dart';
+
+/// A circular chart widget with smooth animations.
+///
+/// Displays data as segments in a circular (donut) chart. Each segment's size
+/// is proportional to its [CirclifyItem.value] relative to the total.
+///
+/// The chart automatically animates when:
+/// - Items are added (fade in)
+/// - Items are removed (fade out)
+/// - Item values change (smooth size transition)
+///
+/// Animation diffing is based on [CirclifyItem.id], so ensure each item has
+/// a unique, stable identifier for correct animations.
+///
+/// {@tool snippet}
+/// Basic usage:
+/// ```dart
+/// Circlify(
+///   items: [
+///     CirclifyItem(id: 'sales', color: Colors.blue, value: 42, label: '42%'),
+///     CirclifyItem(id: 'costs', color: Colors.red, value: 28),
+///     CirclifyItem(id: 'profit', color: Colors.green, value: 30),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
 class Circlify extends StatefulWidget {
   const Circlify({
     super.key,
@@ -50,6 +94,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
   late List<CirclifyItem> _oldItems;
 
   final Map<String, Animation<double>> _animations = {};
+  final Map<String, AnimationController> _controllers = {};
   final Map<String, _AnimationType> _animationTypes = {};
   final Map<int, CirclifyItem> _removingItems = {};
   final List<int> _removingItemsIndexes = [];
@@ -71,6 +116,17 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
       return item;
     });
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    _controllers.clear();
+    _animations.clear();
+    _animationTypes.clear();
+    super.dispose();
   }
 
   void _listIsChanged(List<CirclifyItem> oldItems, List<CirclifyItem> newItems) {
@@ -114,13 +170,20 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
   void _removeAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
     final itemId = oldItems[index].id;
 
+    // Dispose existing controller if any
+    _controllers[itemId]?.dispose();
+
     final controller = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
     )..drive(CurveTween(curve: widget.animationCurve));
+
+    _controllers[itemId] = controller;
+
     controller.addListener(() {
-      setState(() {});
+      if (mounted) setState(() {});
     });
+
     _removingItemsIndexes.add(index);
     _removingItems[index] = oldItems[index];
     _animationTypes[itemId] = _AnimationType.remove;
@@ -134,8 +197,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
           _animationTypes.remove(itemId);
           _removingItems.remove(index);
           _removingItemsIndexes.remove(index);
-          controller.removeListener(() {});
-          controller.dispose();
+          _controllers.remove(itemId)?.dispose();
         }
       });
     controller.forward();
@@ -146,13 +208,21 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
 
   void _addAnimation(List<CirclifyItem> oldItems, List<CirclifyItem> newItems, int index) {
     final itemId = newItems[index].id;
+
+    // Dispose existing controller if any
+    _controllers[itemId]?.dispose();
+
     final controller = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
     );
+
+    _controllers[itemId] = controller;
+
     controller.addListener(() {
-      setState(() {});
+      if (mounted) setState(() {});
     });
+
     _animationTypes[itemId] = _AnimationType.add;
     _animations[itemId] = Tween<double>(
       begin: 0.01,
@@ -162,8 +232,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
         if (status == AnimationStatus.completed) {
           _animations.remove(itemId);
           _animationTypes.remove(itemId);
-          controller.removeListener(() {});
-          controller.dispose();
+          _controllers.remove(itemId)?.dispose();
         }
       });
     controller.forward();
@@ -176,13 +245,20 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
       int oldItemIndex, int newItemIndex) {
     final itemId = newItems[newItemIndex].id;
 
+    // Dispose existing controller if any
+    _controllers[itemId]?.dispose();
+
     final controller = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
     )..drive(CurveTween(curve: widget.animationCurve));
+
+    _controllers[itemId] = controller;
+
     controller.addListener(() {
-      setState(() {});
+      if (mounted) setState(() {});
     });
+
     _animationTypes[itemId] = _AnimationType.updateValue;
     _animations[itemId] = Tween<double>(
       begin: oldItems[oldItemIndex].value / newItems[newItemIndex].value,
@@ -192,8 +268,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
         if (status == AnimationStatus.completed) {
           _animations.remove(itemId);
           _animationTypes.remove(itemId);
-          controller.removeListener(() {});
-          controller.dispose();
+          _controllers.remove(itemId)?.dispose();
         }
       });
     controller.forward();
@@ -203,13 +278,13 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
   }
 
   static double _calculateMaxSegmentSpacing(List<CirclifyItem> items, double radius) {
-    double minPercentage = 0.025;
+    const double minSegmentPercentage = 0.025;
     int itemCount = items.length;
 
     if (itemCount == 0) return double.infinity;
 
     double circumference = 2 * pi * radius;
-    double totalMinSegmentLength = minPercentage * circumference * itemCount;
+    double totalMinSegmentLength = minSegmentPercentage * circumference * itemCount;
     double maxTotalGapLength = circumference - totalMinSegmentLength;
 
     if (maxTotalGapLength <= 0) return 0;
@@ -265,6 +340,10 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
 }
 
 class _CircleChartPainter extends CustomPainter {
+  /// Minimum percentage a segment can occupy (2.5% of the circle).
+  /// Prevents segments from becoming too small to see.
+  static const double _minSegmentPercentage = 0.025;
+
   _CircleChartPainter({
     required List<CirclifyItem> currentItems,
     required this.segmentWidth,
@@ -338,7 +417,6 @@ class _CircleChartPainter extends CustomPainter {
       return item.value / totalSize;
     }).toList();
 
-    double minPercentage = 0.025;
     double gapPercentage = segmentPadding / 360;
     double totalGapPercentage = items.length * gapPercentage;
     double availablePercentage = 1 - totalGapPercentage;
@@ -347,11 +425,11 @@ class _CircleChartPainter extends CustomPainter {
     double totalAdjustedPercentage = 0;
 
     for (int i = 0; i < adjustedPercentages.length; i++) {
-      if (adjustedPercentages[i] < minPercentage) {
+      if (adjustedPercentages[i] < _minSegmentPercentage) {
         final itemId = items[i].id;
         if (animations[itemId]?.value == null ||
             animationTypes[itemId] == _AnimationType.updateValue) {
-          adjustedPercentages[i] = minPercentage;
+          adjustedPercentages[i] = _minSegmentPercentage;
         } else {
           adjustedPercentages[i] = adjustedPercentages[i];
           availablePercentage -= gapPercentage * animations[itemId]!.value;
@@ -668,12 +746,12 @@ class _CircleChartPainter extends CustomPainter {
     double segmentWidthBottom,
     double segmentHeight,
   ) {
-    // Половинные ширины верхней и нижней частей сегмента
+    // Half widths of the top and bottom parts of the segment
     double halfSegmentWidthTop = segmentWidthTop / 2.0;
     double halfSegmentWidthBottom = segmentWidthBottom / 5;
     double halfSegmentHeight = segmentHeight / 2.0;
 
-    // Нормализация для верхнего левого угла
+    // Normalization for top-left corner
     double topLeftMaxHorizontalRadius = halfSegmentWidthTop;
     double topLeftMaxVerticalRadius = halfSegmentHeight;
     double topLeftHorizontalRadius = borderRadius.topLeft.x;
@@ -686,7 +764,7 @@ class _CircleChartPainter extends CustomPainter {
         : 1.0;
     double topLeftRatio = min(topLeftHorizontalRatio, topLeftVerticalRatio);
 
-    // Нормализация для нижнего левого угла
+    // Normalization for bottom-left corner
     double bottomLeftMaxHorizontalRadius = halfSegmentWidthBottom;
     double bottomLeftMaxVerticalRadius = halfSegmentHeight;
     double bottomLeftHorizontalRadius = borderRadius.bottomLeft.x;
@@ -699,7 +777,7 @@ class _CircleChartPainter extends CustomPainter {
         : 1.0;
     double bottomLeftRatio = min(bottomLeftHorizontalRatio, bottomLeftVerticalRatio);
 
-    // Нормализация для верхнего правого угла
+    // Normalization for top-right corner
     double topRightMaxHorizontalRadius = halfSegmentWidthTop;
     double topRightMaxVerticalRadius = halfSegmentHeight;
     double topRightHorizontalRadius = borderRadius.topRight.x;
@@ -712,7 +790,7 @@ class _CircleChartPainter extends CustomPainter {
         : 1.0;
     double topRightRatio = min(topRightHorizontalRatio, topRightVerticalRatio);
 
-    // Нормализация для нижнего правого угла
+    // Normalization for bottom-right corner
     double bottomRightMaxHorizontalRadius = halfSegmentWidthBottom;
     double bottomRightMaxVerticalRadius = halfSegmentHeight;
     double bottomRightHorizontalRadius = borderRadius.bottomRight.x;
@@ -745,10 +823,30 @@ class _CircleChartPainter extends CustomPainter {
     );
   }
 
-  double get allItemsSize => items.map((e) => e.value).fold(0, (a, b) => a + b);
-
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _CircleChartPainter oldDelegate) {
+    // Always repaint during animations for smooth transitions
+    if (animations.isNotEmpty) return true;
+
+    // Check if items changed
+    if (items.length != oldDelegate.items.length) return true;
+
+    for (int i = 0; i < items.length; i++) {
+      if (items[i].id != oldDelegate.items[i].id ||
+          items[i].value != oldDelegate.items[i].value ||
+          items[i].color != oldDelegate.items[i].color ||
+          items[i].label != oldDelegate.items[i].label) {
+        return true;
+      }
+    }
+
+    // Check other properties
+    return segmentWidth != oldDelegate.segmentWidth ||
+        segmentSpacing != oldDelegate.segmentSpacing ||
+        borderRadius != oldDelegate.borderRadius ||
+        segmentDefaultColor != oldDelegate.segmentDefaultColor ||
+        labelStyle != oldDelegate.labelStyle;
+  }
 }
 
 enum _AnimationType {
@@ -832,10 +930,10 @@ class _MathUtils {
     double x, y;
 
     if (tangentSlope == lineSlope) {
-      throw Exception('Lines parallel or equal');
+      throw StateError('Lines are parallel or equal');
     } else if (tangentSlope.isInfinite) {
       if (lineSlope.isInfinite) {
-        throw Exception('Lines parallel or equal');
+        throw StateError('Lines are parallel or equal');
       } else {
         x = x0;
         y = lineSlope * x + b2;

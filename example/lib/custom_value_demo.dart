@@ -1,5 +1,4 @@
-import 'package:circlify/Circlify.dart';
-import 'package:circlify/circlify_item.dart';
+import 'package:circlify/circlify.dart';
 import 'package:flutter/material.dart';
 
 class CustomValuesDemo extends StatefulWidget {

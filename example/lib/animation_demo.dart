@@ -1,5 +1,4 @@
 import 'package:circlify/circlify.dart';
-import 'package:circlify/circlify_item.dart';
 import 'package:flutter/material.dart';
 
 class AnimationDemo extends StatefulWidget {
@@ -11,9 +10,9 @@ class AnimationDemo extends StatefulWidget {
 
 class _AnimationDemoState extends State<AnimationDemo> {
   List<CirclifyItem> items = [
-    CirclifyItem(color: Colors.red, value: 100),
-    CirclifyItem(color: Colors.green, value: 200),
-    CirclifyItem(color: Colors.blue, value: 500),
+    CirclifyItem(id: 'red', color: Colors.red, value: 100),
+    CirclifyItem(id: 'green', color: Colors.green, value: 200),
+    CirclifyItem(id: 'blue', color: Colors.blue, value: 500),
   ];
 
   @override
@@ -55,7 +54,12 @@ class _AnimationDemoState extends State<AnimationDemo> {
               child: const Text('Multiple 2 value'),
               onPressed: () {
                 setState(() {
-                  if (items.isNotEmpty) items.last.value *= 2;
+                  if (items.isNotEmpty) {
+                    final lastIndex = items.length - 1;
+                    items[lastIndex] = items[lastIndex].copyWith(
+                      value: items[lastIndex].value * 2,
+                    );
+                  }
                 });
               },
             ),
@@ -63,7 +67,12 @@ class _AnimationDemoState extends State<AnimationDemo> {
               child: const Text('Div 2 value'),
               onPressed: () {
                 setState(() {
-                  if (items.isNotEmpty) items.last.value /= 2;
+                  if (items.isNotEmpty) {
+                    final lastIndex = items.length - 1;
+                    items[lastIndex] = items[lastIndex].copyWith(
+                      value: items[lastIndex].value / 2,
+                    );
+                  }
                 });
               },
             ),
