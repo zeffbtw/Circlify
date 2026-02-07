@@ -1,4 +1,4 @@
-import 'package:circlify/circlify_item.dart';
+import 'circlify_item.dart';
 import 'package:flutter/material.dart';
 
 /// Contains information about a tapped segment.
