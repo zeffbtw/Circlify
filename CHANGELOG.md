@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [2.1.0] - 2026-02-07
+
+### ✨ New Features
+
+- **Segment Tap Handling**: Added `onSegmentTap` callback to handle tap events on chart segments. The callback receives `SegmentTapDetails` containing the tapped item, its index, and tap position.
+
+### 📝 Documentation
+
+- Updated README with segment tap handling documentation
+- Fixed syntax error in usage example
+- Removed outdated TODO section (tap handling now implemented)
+
+---
+
 ## [2.0.0] - 2026-02-06
 
 ### ⚠️ Breaking Changes

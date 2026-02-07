@@ -38,10 +38,10 @@ Here’s a quick example to get started:
 class App extends StatelessWidget {
   const App({super.key});
 
-  final List<CirclifyItem> = [
-    CirclifyItem(color: Colors.red, value: 100),
-    CirclifyItem(color: Colors.green, value: 100),
-    CirclifyItem(color: Colors.blue, value: 100),
+  final List<CirclifyItem> items = [
+    CirclifyItem(id: '1', color: Colors.red, value: 100),
+    CirclifyItem(id: '2', color: Colors.green, value: 100),
+    CirclifyItem(id: '3', color: Colors.blue, value: 100),
   ];
 
   @override
@@ -150,7 +150,26 @@ Circlify(
 - Customize the appearance of labels using the `labelStyle` property, which accepts a `TextStyle` object.
 - Ensure each `CirclifyItem` has a unique `id` to optimize re-renders and maintain a consistent visual layout.
 
+## 👆 Segment Tap Handling
 
+Make your charts interactive by handling tap events on segments using the `onSegmentTap` callback.
+
+### Example
+```dart
+Circlify(
+  items: items,
+  onSegmentTap: (details) {
+    print('Tapped: ${details.item.label}');
+    print('Index: ${details.index}');
+    print('Position: ${details.localPosition}');
+  },
+)
+```
+
+The callback receives a `SegmentTapDetails` object containing:
+- `item` — The tapped `CirclifyItem`
+- `index` — The index in the items list
+- `localPosition` — Tap position relative to the widget
 
 ## 🛠 Custom CirclifyItem
 
@@ -212,7 +231,8 @@ class CustomChartApp extends StatelessWidget {
 | `segmentDefaultColor`| `Color`        | Default color for empty chart segments                              | `Colors.grey`         |
 | `animationDuration`  | `Duration`     | Duration of the animation                                           | `Duration(milliseconds: 150)` |
 | `animationCurve`     | `Curve`        | Animation curve                                                     | `Curves.easeIn`    |
-| `labelStyle`     | `TextStyle`        | TextStyle of label on CirclifyItem                                                     | Optional    |
+| `labelStyle`         | `TextStyle`    | TextStyle of label on CirclifyItem                                  | Optional           |
+| `onSegmentTap`       | `SegmentTapCallback` | Callback when a segment is tapped                               | Optional           |
 
 
 ## 📝 CirclifyItem Parameters
@@ -224,10 +244,13 @@ class CustomChartApp extends StatelessWidget {
 | `value`   | `double`| Value of the item (must be > 0)               | Required        |
 | `label`   | `String`| The label of the item, drawn on center of the segment| Optional        |
 
-## 📌 TODO
+## 📝 SegmentTapDetails Properties
 
-- [ ] [Add support for tapping on pie sections (highlight on tap)](https://github.com/zeffbtw/Circlify/issues/2)
-
+| Property        | Type           | Description                              |
+| --------------- | -------------- | ---------------------------------------- |
+| `item`          | `CirclifyItem` | The tapped chart item                    |
+| `index`         | `int`          | Index of the tapped item in the list     |
+| `localPosition` | `Offset`       | Tap position relative to the widget      |
 
 ## 💬 Feedback and Contributions
 
