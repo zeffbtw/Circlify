@@ -26,6 +26,14 @@ class _CustomValuesDemoState extends State<CustomValuesDemo> {
             width: 250,
             height: 250,
             child: Circlify(
+              onSegmentTap: (details) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Tapped: ${details.item.label ?? details.item.id}'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
               labelStyle: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w900,

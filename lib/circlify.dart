@@ -18,10 +18,15 @@
 library circlify;
 
 import 'dart:math';
+import 'package:circlify/segment_tap_details.dart';
 import 'package:flutter/material.dart';
 
 import 'circlify_item.dart';
 export 'circlify_item.dart';
+export 'segment_tap_details.dart';
+
+/// Callback signature for segment tap events.
+typedef SegmentTapCallback = void Function(SegmentTapDetails details);
 
 /// A circular chart widget with smooth animations.
 ///
@@ -59,6 +64,7 @@ class Circlify extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 150),
     this.animationCurve = Curves.easeIn,
     this.labelStyle,
+    this.onSegmentTap,
   });
 
   /// Chart items
@@ -84,6 +90,12 @@ class Circlify extends StatefulWidget {
 
   /// Label text style
   final TextStyle? labelStyle;
+
+  /// Called when a segment is tapped.
+  ///
+  /// Provides [SegmentTapDetails] containing the tapped item, its index,
+  /// and the tap position.
+  final SegmentTapCallback? onSegmentTap;
 
   @override
   State<Circlify> createState() => _CirclifyState();
@@ -303,6 +315,103 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
     return formattedItems;
   }
 
+  /// Hit tests the given position to find the tapped segment.
+  ///
+  /// Returns [SegmentTapDetails] if a segment was hit, null otherwise.
+  SegmentTapDetails? _hitTest(Offset position, Size size) {
+    final items = _formattedItems;
+    if (items.isEmpty) return null;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final outerRadius = size.width / 2;
+    final innerRadius = outerRadius - widget.segmentWidth;
+
+    // Calculate distance from center
+    final dx = position.dx - center.dx;
+    final dy = position.dy - center.dy;
+    final distance = sqrt(dx * dx + dy * dy);
+
+    // Check if tap is within the ring
+    if (distance < innerRadius || distance > outerRadius) {
+      return null;
+    }
+
+    // Single item covers the full circle
+    if (items.length == 1) {
+      return SegmentTapDetails(
+        item: items[0],
+        index: 0,
+        localPosition: position,
+      );
+    }
+
+    // Calculate angle in degrees (0-360), starting from right (3 o'clock)
+    double angle = atan2(dy, dx) * (180 / pi);
+    // Convert from [-180, 180] to [0, 360]
+    if (angle < 0) angle += 360;
+    // Shift to start from top (12 o'clock) - chart starts from left (9 o'clock = 180°)
+    // Actually the chart starts from 0° (right side), so we keep it as is
+
+    // Calculate segment boundaries
+    final segmentPadding = _MathUtils.scalarToAngle(
+      outerRadius - widget.segmentWidth / 2,
+      widget.segmentSpacing,
+    );
+
+    // Get adjusted percentages (same logic as painter)
+    double totalSize = items.fold(0.0, (sum, item) => sum + item.value);
+    if (totalSize == 0) return null;
+
+    List<double> rawPercentages = items.map((item) => item.value / totalSize).toList();
+    double gapPercentage = segmentPadding / 360;
+    double totalGapPercentage = items.length * gapPercentage;
+    double availablePercentage = 1 - totalGapPercentage;
+
+    // Apply minimum percentage
+    const double minSegmentPercentage = 0.025;
+    List<double> adjustedPercentages = List.from(rawPercentages);
+    double totalAdjustedPercentage = 0;
+
+    for (int i = 0; i < adjustedPercentages.length; i++) {
+      if (adjustedPercentages[i] < minSegmentPercentage) {
+        final itemId = items[i].id;
+        if (_animations[itemId]?.value == null ||
+            _animationTypes[itemId] == _AnimationType.updateValue) {
+          adjustedPercentages[i] = minSegmentPercentage;
+        }
+      }
+      totalAdjustedPercentage += adjustedPercentages[i];
+    }
+
+    double scale = availablePercentage / totalAdjustedPercentage;
+    for (int i = 0; i < adjustedPercentages.length; i++) {
+      adjustedPercentages[i] *= scale;
+    }
+
+    // Find which segment the angle falls into
+    double startAngle = 0;
+    for (int i = 0; i < items.length; i++) {
+      double segmentDegrees = adjustedPercentages[i] * 360;
+      double endAngle = startAngle + segmentDegrees;
+
+      // Normalize angle for comparison (chart uses 180° offset internally)
+      double normalizedTapAngle = angle - 180;
+      if (normalizedTapAngle < 0) normalizedTapAngle += 360;
+
+      if (normalizedTapAngle >= startAngle && normalizedTapAngle < endAngle) {
+        return SegmentTapDetails(
+          item: items[i],
+          index: i,
+          localPosition: position,
+        );
+      }
+
+      startAngle = endAngle + segmentPadding;
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -322,7 +431,7 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
           'Segment width is too large or too small for the size of the chart',
         );
 
-        return CustomPaint(
+        final customPaint = CustomPaint(
           size: Size(constraints.maxWidth, constraints.maxHeight),
           painter: _CircleChartPainter(
             currentItems: _formattedItems,
@@ -334,6 +443,20 @@ class _CirclifyState extends State<Circlify> with TickerProviderStateMixin {
             animationTypes: _animationTypes,
             labelStyle: widget.labelStyle,
           ),
+        );
+
+        if (widget.onSegmentTap == null) {
+          return customPaint;
+        }
+
+        return GestureDetector(
+          onTapUp: (details) {
+            final hitResult = _hitTest(details.localPosition, size);
+            if (hitResult != null) {
+              widget.onSegmentTap!(hitResult);
+            }
+          },
+          child: customPaint,
         );
       },
     );
@@ -662,8 +785,8 @@ class _CircleChartPainter extends CustomPainter {
       -pi /
           (180 /
               (segmentSizeAngle -
-                  _MathUtils.scalarToAngle(innerRadius,
-                      borderRadius.bottomLeft.x + borderRadius.bottomRight.x))),
+                  _MathUtils.scalarToAngle(
+                      innerRadius, borderRadius.bottomLeft.x + borderRadius.bottomRight.x))),
       false,
     );
 
@@ -689,8 +812,7 @@ class _CircleChartPainter extends CustomPainter {
         center: center,
         radius: innerRadius,
         angleDegrees: 180 +
-            (segmentStartAngle +
-                _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomLeft.x)),
+            (segmentStartAngle + _MathUtils.scalarToAngle(innerRadius, borderRadius.bottomLeft.x)),
         point1: point1Angle3,
         point2: endOfAngle3,
       );
