@@ -4,3 +4,4 @@
 lib/math_utils.dart
 build/
 raw/
+.github/
