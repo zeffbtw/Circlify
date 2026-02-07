@@ -2,3 +2,5 @@
 
 .vscode/
 lib/math_utils.dart
+build/
+raw/
